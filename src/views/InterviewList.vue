@@ -49,7 +49,7 @@ export default {
     onEditConfirm() {
       axios
         .patch(
-          `http://localhost:8081/interview/${this.editingInterview.interview_id}`,
+          `https://ib-backend-server.herokuapp.com/interview/${this.editingInterview.interview_id}`,
           {
             start_time: new Date(this.editingInterview.start_time).valueOf(),
             end_time: new Date(this.editingInterview.end_time).valueOf(),
@@ -71,12 +71,15 @@ export default {
     },
     deleteInterview(interview_id) {
       axios
-        .delete(`http://localhost:8081/interview/${interview_id}`)
+        .delete(
+          `https://ib-backend-server.herokuapp.com/interview/${interview_id}`
+        )
         .then((candidates) => {
           this.formatted_interviews.splice(
             this.formatted_interviews.findIndex(
               (el) => el.interview_id == interview_id
-            )
+            ),
+            1
           );
         });
     },
@@ -122,5 +125,4 @@ export default {
 </script>
 
 <style>
-
 </style>
