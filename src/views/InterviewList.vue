@@ -1,7 +1,7 @@
 <template>
   <div class="interviews-container container py-3">
     <h3>Upcoming Interviews</h3>
-    <div class="interviews-list row">
+    <div class="interviews-list row" v-if="editingInterview == null">
       <InterviewCard
         v-for="interview in formatted_interviews"
         :key="interview.id"
@@ -10,16 +10,26 @@
         @on-delete="deleteInterview(interview.interview_id)"
       />
     </div>
+    <div v-else>
+      <EditInterview
+        :interview="editingInterview"
+        @on-confirm="onEditConfirm"
+        @on-delete="deleteInterview(editingInterview.id)"
+        @on-cancel="onEditCancel"
+      />
+    </div>
   </div>
 </template>
 
 <script>
 import InterviewCard from "@/components/InterviewCard";
+import EditInterview from "@/components/EditInterview";
 import axios from "axios";
 
 export default {
   components: {
     InterviewCard,
+    EditInterview,
   },
   data: () => ({
     interviews: [],
@@ -27,16 +37,35 @@ export default {
     candidates: [],
     users: [],
     formatted_interviews: [],
+    editingInterview: null,
   }),
   methods: {
-    editInterview(index) {
-      console.log(this.interviews[index]);
+    editInterview(interview_id) {
+      var interview = this.formatted_interviews.find(
+        (el) => el.interview_id == interview_id
+      );
+      this.editingInterview = JSON.parse(JSON.stringify(interview));
+    },
+    onEditConfirm() {
+      console.log("Edit confirm", this.editingInterview);
+      let index = this.interviews.findIndex((interview) => {
+        return interview.id == this.editingInterview.id;
+      });
+      this.interviews[index] = this.editingInterview;
+      this.editingInterview = null;
+    },
+    onEditCancel() {
+      this.editingInterview = null;
     },
     deleteInterview(interview_id) {
       axios
         .delete(`http://localhost:8081/interview/${interview_id}`)
         .then((candidates) => {
-          console.log(candidates);
+          this.formatted_interviews.splice(
+            this.formatted_interviews.findIndex(
+              (el) => el.interview_id == interview_id
+            )
+          );
         });
     },
   },
