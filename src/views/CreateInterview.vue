@@ -1,22 +1,21 @@
 <template>
   <div class="create-interview-container container py-3">
-    <div class="user-dropdown">
-      <h4>Select Interviewer</h4>
-      <div class="row p-2 bg-light">
-        <select name="" id="" v-model="selected_user">
-          <option
-            v-for="user in users"
-            :key="user.user_id"
-            :value="user.user_id"
-          >
-            {{ user.name }}
-          </option>
-        </select>
-      </div>
+		<h3>Create Interview</h3>
+    <div class="user-dropdown my-4">
+      <p class="text-secondary font-weight-bold">Select Interviewer</p>
+			<select name="" id="" class="form-select" v-model="selected_user">
+				<option
+					v-for="user in users"
+					:key="user.user_id"
+					:value="user.user_id"
+				>
+					{{ user.name }}
+				</option>
+			</select>
     </div>
-    <div class="select-container">
-      <h4>Select candidates (Click to Select)</h4>
-      <div class="row p-2 bg-light">
+    <div class="select-container my-4">
+      <p class="text-secondary font-weight-bold m-0">Select candidates (Click to Select)</p>
+      <div class="candidates-row p-2">
         <CandidateCard
           v-for="(candidate, i) in remaining_candidates"
           :key="candidate.id"
@@ -25,9 +24,9 @@
         />
       </div>
     </div>
-    <div class="selected-container my-5">
-      <h4>Selected candidates</h4>
-      <div class="row p-2 bg-light">
+    <div class="selected-container my-4">
+      <p class="text-secondary font-weight-bold m-0">Candidates Selected</p>
+      <div class="selected-row p-2">
         <CandidateCard
           v-for="(candidate, i) in selected"
           :key="candidate.id"
@@ -36,28 +35,30 @@
         />
       </div>
       <form @submit.prevent="createInterview" class="time-selection">
-        <div class="form-group my-2">
-          <label for="start-time">Start Time</label>
-          <input
-            id="start-time"
-            class="form-control"
-            type="datetime-local"
-            :min="minDate"
-            v-model="start_time"
-            required
-          />
-        </div>
-        <div class="form-group my-2">
-          <label for="end-time">End Time</label>
-          <input
-            id="end-time"
-            class="form-control"
-            type="datetime-local"
-            :min="minDate"
-            v-model="end_time"
-            required
-          />
-        </div>
+				<div class="form-row">
+					<div class="form-group my-2">
+						<label class="text-secondary" for="start-time">Start Time</label>
+						<input
+							id="start-time"
+							class="form-control"
+							type="datetime-local"
+							:min="dateTimeNow"
+							v-model="start_time"
+							required
+						/>
+					</div>
+					<div class="form-group my-2">
+						<label class="text-secondary" for="end-time">End Time</label>
+						<input
+							id="end-time"
+							class="form-control"
+							type="datetime-local"
+							:min="start_time"
+							v-model="end_time"
+							required
+						/>
+					</div>
+				</div>
         <button
           class="btn btn-primary my-2"
           :disabled="
@@ -90,12 +91,17 @@ export default {
     selected_user: "",
   }),
   computed: {
-    minDate() {
-      console.log(new Date(Date.now()).toISOString());
-      return Date.now();
-    },
+    dateTimeNow() {
+      return this.utcToInputString(Date.now());
+    }
   },
   methods: {
+		utcToInputString(timestamp) {
+      let datetimeSegments = new Date(timestamp).toISOString().split(":");
+      let datetime = datetimeSegments[0] + ":" + datetimeSegments[1];
+      // console.log(timestamp, datetime);
+      return datetime;
+    },
     selectCandidate(index) {
       this.selected.push(this.candidates[index]);
       this.candidates.splice(index, 1);
@@ -106,7 +112,7 @@ export default {
     },
     createInterview() {
       axios
-        .post("https://ib-backend-server.herokuapp.com/interview", {
+        .post("http://localhost:8081/interview", {
           start_time: new Date(this.start_time).valueOf(),
           end_time: new Date(this.end_time).valueOf(),
           candidates: this.selected,
@@ -117,12 +123,12 @@ export default {
   },
   created() {
     axios
-      .get("https://ib-backend-server.herokuapp.com/candidates")
+      .get("http://localhost:8081/candidates")
       .then((candidates) => {
         this.candidates = candidates.data;
         this.remaining_candidates = this.candidates;
       });
-    axios.get("https://ib-backend-server.herokuapp.com/users").then((users) => {
+    axios.get("http://localhost:8081/users").then((users) => {
       this.users = users.data;
       this.selected_user = this.users[0].user_id;
     });
@@ -133,11 +139,24 @@ export default {
 <style>
 .create-interview-container {
 }
-.select-container,
-.selected-container {
+.candidates-row, .selected-row {
+	display: flex;
+	flex-wrap: wrap;
 }
-.select-container .row,
-.selected-container .row {
-  min-height: 100px;
+.form-control, .form-select {
+	box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+	border: none !important;
+}
+.form-row {
+	display: flex;
+	flex-wrap: wrap;
+}
+.form-group {
+	margin: 0 10px;
+}
+.selected-container {
+	background: rgb(231, 231, 231);
+	padding: 20px;
+	border-radius: 10px;
 }
 </style>

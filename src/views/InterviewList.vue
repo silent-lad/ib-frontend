@@ -122,6 +122,5 @@ export default {
 </script>
 
 <style>
-.interviews-container {
-}
+
 </style>

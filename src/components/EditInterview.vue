@@ -1,6 +1,6 @@
 <template>
   <div class="edit-interview">
-    <b>Interviewees</b>
+    <p class="text-secondary font-weight-bold m-0">Interviewees</p>
     <ol>
       <li
         v-for="candidate in interview.candidates"
@@ -9,7 +9,7 @@
         {{ candidate.name }}
       </li>
     </ol>
-    <b>Interviewer: </b>
+    <p class="text-secondary font-weight-bold m-0">Interviewer</p>
     <p>{{ interview.user.name }}</p>
     <form @submit.prevent="onConfirmClick" class="time-selection">
       <div class="form-group my-2">
@@ -55,11 +55,6 @@ export default {
   computed: {
     dateTimeNow() {
       return this.utcToInputString(Date.now());
-    },
-    dateTimeStart() {
-      if (this.interview.start_time == null) return undefined;
-
-      return this.utcToInputString(this.interview.start_time);
     },
   },
   created() {

@@ -1,19 +1,72 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Create Interview</router-link> |
-      <router-link to="/interviews">Interviews</router-link>
+		<div class="side-bar">
+      <h5 class="my-4">Interview Creation Portal</h5>
+      <ul class="side-list">
+        <router-link tag="li" class="side-item" to="/">Create Interview</router-link>
+        <router-link tag="li" class="side-item" to="/interviews">Upcoming Interviews</router-link>
+      </ul>
     </div>
-    <router-view />
+    <div class="main-content">
+    	<router-view />
+    </div>
   </div>
 </template>
 
-<style>
+<script>
+export default {
+	computed: {
+		selectedRoute() {
+			return this.$route.name;
+		}
+	},
+}
+</script>
+
+<style lang="scss">
 body {
   margin: 0;
 }
 #app {
-  min-height: 100vh;
-  /* background: rgb(240, 240, 240); */
+  height: 100vh;
+	display: flex;
+}
+
+.side-bar {
+	flex: 1;
+	height: 100%;
+	background: rgb(219, 99, 0);
+	color: white;
+	display: flex;
+	flex-direction: column;
+	padding: 20px 0;
+	text-align: center;
+	box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
+	z-index: 10;
+
+	.side-list {
+		list-style: none;
+		padding: 0;
+		margin-top: 30px;
+
+		.side-item {
+			padding: 20px 0;
+			background: rgba(255, 255, 255, 0.1);
+			cursor: pointer;
+
+			&.selected {
+				background: rgb(46, 46, 255);
+			}
+		}
+	}
+}
+.main-content {
+	height: 100%;
+	overflow: auto;
+	background: #f9f9f9;
+	color: black;
+	flex: 4;
+	width: 100%;
+	padding: 20px;
 }
 </style>
