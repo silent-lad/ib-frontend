@@ -1,7 +1,8 @@
 <template>
   <div class="interviews-container container py-3">
     <h3>Upcoming Interviews</h3>
-    <div class="interviews-list row" v-if="editingInterview == null">
+    <Loader v-if="isLoading"></Loader>
+    <div class="interviews-list row" v-else-if="editingInterview == null">
       <InterviewCard
         v-for="interview in formatted_interviews"
         :key="interview.id"
@@ -24,12 +25,14 @@
 <script>
 import InterviewCard from "@/components/InterviewCard";
 import EditInterview from "@/components/EditInterview";
+import Loader from "@/components/Loader";
 import axios from "axios";
 
 export default {
   components: {
     InterviewCard,
     EditInterview,
+    Loader,
   },
   data: () => ({
     interviews: [],
@@ -38,6 +41,7 @@ export default {
     users: [],
     formatted_interviews: [],
     editingInterview: null,
+    isLoading: true,
   }),
   methods: {
     editInterview(interview_id) {
@@ -47,6 +51,7 @@ export default {
       this.editingInterview = JSON.parse(JSON.stringify(interview));
     },
     onEditConfirm() {
+      this.isLoading = true;
       axios
         .patch(
           `https://ib-backend-server.herokuapp.com/interview/${this.editingInterview.interview_id}`,
@@ -64,12 +69,14 @@ export default {
           });
           this.formatted_interviews[index] = this.editingInterview;
           this.editingInterview = null;
+          this.isLoading = false;
         });
     },
     onEditCancel() {
       this.editingInterview = null;
     },
     deleteInterview(interview_id) {
+      this.isLoading = true;
       axios
         .delete(
           `https://ib-backend-server.herokuapp.com/interview/${interview_id}`
@@ -81,6 +88,7 @@ export default {
             ),
             1
           );
+          this.isLoading = false;
         });
     },
   },
@@ -118,6 +126,7 @@ export default {
           user: user,
           candidates: candidates,
         });
+        this.isLoading = false;
       });
     });
   },

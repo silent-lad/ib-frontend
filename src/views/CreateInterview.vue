@@ -1,6 +1,7 @@
 <template>
   <div class="create-interview-container container py-3">
     <h3>Create Interview</h3>
+
     <div class="user-dropdown my-4">
       <p class="text-secondary font-weight-bold">Select Interviewer</p>
       <select name="" id="" class="form-select" v-model="selected_user">
@@ -13,7 +14,8 @@
       <p class="text-secondary font-weight-bold m-0">
         Select candidates (Click to Select)
       </p>
-      <div class="candidates-row p-2">
+      <Loader v-if="isLoading"></Loader>
+      <div v-else class="candidates-row p-2">
         <CandidateCard
           v-for="(candidate, i) in remaining_candidates"
           :key="candidate.id"
@@ -23,7 +25,9 @@
       </div>
     </div>
     <div class="selected-container my-4">
-      <p class="text-secondary font-weight-bold m-0">Candidates Selected</p>
+      <p class="text-secondary font-weight-bold m-0">
+        Candidates Selected (Click to Remove)
+      </p>
       <div class="selected-row p-2">
         <CandidateCard
           v-for="(candidate, i) in selected"
@@ -60,7 +64,10 @@
         <button
           class="btn btn-primary my-2"
           :disabled="
-            selected.length == 0 || start_time == null || end_time == null
+            selected.length == 0 ||
+            start_time == null ||
+            end_time == null ||
+            isLoading
           "
         >
           Create Interview
@@ -73,11 +80,13 @@
 <script>
 import CandidateCard from "@/components/CandidateCard";
 import axios from "axios";
+import Loader from "@/components/Loader";
 
 export default {
   name: "CreateInterview",
   components: {
     CandidateCard,
+    Loader,
   },
   data: () => ({
     candidates: [],
@@ -87,6 +96,7 @@ export default {
     start_time: null,
     end_time: null,
     selected_user: "",
+    isLoading: false,
   }),
   computed: {
     dateTimeNow() {
@@ -109,22 +119,44 @@ export default {
       this.selected.splice(index, 1);
     },
     createInterview() {
-      axios
-        .post("https://ib-backend-server.herokuapp.com/interview", {
-          start_time: new Date(this.start_time).valueOf(),
-          end_time: new Date(this.end_time).valueOf(),
-          candidates: this.selected,
-          user_id: this.selected_user,
-        })
-        .then((candidates) => {});
+      if (this.start_time >= this.end_time) {
+        alert(
+          "Please keep start time of the interview greater than ending time"
+        );
+        return;
+      } else if (this.selected.length == 0) {
+        alert("Please Select atleast one candidate");
+        return;
+      } else if (!this.selected_user) {
+        alert("Please Select interviewee");
+        return;
+      } else {
+        this.isLoading = true;
+        axios
+          .post("https://ib-backend-server.herokuapp.com/interview", {
+            start_time: new Date(this.start_time).valueOf(),
+            end_time: new Date(this.end_time).valueOf(),
+            candidates: this.selected,
+            user_id: this.selected_user,
+          })
+          .then((candidates) => {
+            this.isLoading = false;
+            this.remaining_candidates = this.candidates;
+            this.end_time = null;
+            this.start_time = null;
+            this.selected = [];
+          });
+      }
     },
   },
   created() {
+    this.isLoading = true;
     axios
       .get("https://ib-backend-server.herokuapp.com/candidates")
       .then((candidates) => {
         this.candidates = candidates.data;
         this.remaining_candidates = this.candidates;
+        this.isLoading = false;
       });
     axios.get("https://ib-backend-server.herokuapp.com/users").then((users) => {
       this.users = users.data;
