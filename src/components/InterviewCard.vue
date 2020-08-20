@@ -3,8 +3,9 @@
     <button class="edit-button" @click="$emit('on-edit')"></button>
     <button class="delete-button" @click="$emit('on-delete')"></button>
     <p>
-      {{ new Date(details.start_time).toLocaleString() }} -
-      {{ new Date(details.end_time).toLocaleString() }}
+      {{ new Date(details.start_time) | formatDate }}
+      -
+      {{ new Date(details.end_time) | formatDate }}
     </p>
     <p class="text-secondary font-weight-bold m-0">Interviewees</p>
     <ol>
@@ -20,18 +21,32 @@
 <script>
 export default {
   props: ["details"],
+  filters: {
+    formatDate(date) {
+      var string = date.toLocaleString("en-US", {
+        dateStyle: "long",
+      });
+      string += " ";
+      string += date.toLocaleString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      });
+      return string;
+    },
+  },
 };
 </script>
 
 <style>
 .interview-card {
-	position: relative;
-	width: 250px;
+  position: relative;
+  width: 250px;
   cursor: pointer;
-	border: none;
-	border-radius: 10px;
-	background: white;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 200ms ease-in-out;
 }
 /* .interview-card:hover {

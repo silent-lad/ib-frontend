@@ -46,7 +46,7 @@ export default {
     users: [],
     formatted_interviews: [],
     editingInterview: null,
-    isLoading: true,
+    isLoading: false,
   }),
   methods: {
     editInterview(interview_id) {
@@ -98,6 +98,14 @@ export default {
     },
   },
   created() {
+    if (!localStorage.getItem("interviews")) {
+      this.isLoading = true;
+    } else {
+      this.isLoading = false;
+      this.formatted_interviews = JSON.parse(
+        localStorage.getItem("interviews")
+      );
+    }
     Promise.all([
       axios.get("https://ib-backend-server.herokuapp.com/interview"),
       axios.get("https://ib-backend-server.herokuapp.com/candidates"),
@@ -113,6 +121,8 @@ export default {
       this.candidates = candidates.data;
 
       this.users = users.data;
+
+      var cacheInterviews = [];
       this.interviews.forEach((interview) => {
         var user = this.users.find((el) => el.user_id == interview.user_id);
         var schedules = this.schedule.filter(
@@ -124,15 +134,20 @@ export default {
             this.candidates.find((el) => el.candidate_id == sched.candidate_id)
           );
         });
-        this.formatted_interviews.push({
+        cacheInterviews.push({
           interview_id: interview.interview_id,
           start_time: interview.start_time,
           end_time: interview.end_time,
           user: user,
           candidates: candidates,
         });
-        this.isLoading = false;
       });
+      this.formatted_interviews = cacheInterviews;
+      localStorage.setItem(
+        "interviews",
+        JSON.stringify(this.formatted_interviews)
+      );
+      this.isLoading = false;
     });
   },
 };
