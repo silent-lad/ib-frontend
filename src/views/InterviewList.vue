@@ -47,12 +47,24 @@ export default {
       this.editingInterview = JSON.parse(JSON.stringify(interview));
     },
     onEditConfirm() {
-      console.log("Edit confirm", this.editingInterview);
-      let index = this.interviews.findIndex((interview) => {
-        return interview.id == this.editingInterview.id;
-      });
-      this.interviews[index] = this.editingInterview;
-      this.editingInterview = null;
+      axios
+        .patch(
+          `http://localhost:8081/interview/${this.editingInterview.interview_id}`,
+          {
+            start_time: new Date(this.editingInterview.start_time).valueOf(),
+            end_time: new Date(this.editingInterview.end_time).valueOf(),
+          }
+        )
+        .then((candidates) => {
+          let index = this.formatted_interviews.findIndex((interview) => {
+            return (
+              this.formatted_interviews.interview_id ==
+              this.editingInterview.interview_id
+            );
+          });
+          this.formatted_interviews[index] = this.editingInterview;
+          this.editingInterview = null;
+        });
     },
     onEditCancel() {
       this.editingInterview = null;

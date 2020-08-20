@@ -2,12 +2,15 @@
   <div class="edit-interview">
     <b>Interviewees</b>
     <ol>
-      <li v-for="candidate in interview.selected" :key="candidate.id">
+      <li
+        v-for="candidate in interview.candidates"
+        :key="candidate.candidate_id"
+      >
         {{ candidate.name }}
       </li>
     </ol>
     <b>Interviewer: </b>
-    <p>{{ interview.interviewer }}</p>
+    <p>{{ interview.user.name }}</p>
     <form @submit.prevent="onConfirmClick" class="time-selection">
       <div class="form-group my-2">
         <label for="start-time">Start Time</label>
@@ -16,7 +19,7 @@
           class="form-control"
           type="datetime-local"
           :min="dateTimeNow"
-          v-model="interview.startTime"
+          v-model="interview.start_time"
           required
         />
       </div>
@@ -26,8 +29,8 @@
           id="end-time"
           class="form-control"
           type="datetime-local"
-          :min="interview.startTime"
-          v-model="interview.endTime"
+          :min="interview.start_time"
+          v-model="interview.end_time"
           required
         />
       </div>
@@ -54,14 +57,16 @@ export default {
       return this.utcToInputString(Date.now());
     },
     dateTimeStart() {
-      if (this.interview.startTime == null) return undefined;
+      if (this.interview.start_time == null) return undefined;
 
-      return this.utcToInputString(this.interview.startTime);
+      return this.utcToInputString(this.interview.start_time);
     },
   },
   created() {
-    this.interview.startTime = this.utcToInputString(this.interview.startTime);
-    this.interview.endTime = this.utcToInputString(this.interview.endTime);
+    this.interview.start_time = this.utcToInputString(
+      this.interview.start_time
+    );
+    this.interview.end_time = this.utcToInputString(this.interview.end_time);
   },
   methods: {
     utcToInputString(timestamp) {

@@ -106,10 +106,9 @@ export default {
     },
     createInterview() {
       axios
-        // .post("https://ib-backend-server.herokuapp.com/interview", {
         .post("https://ib-backend-server.herokuapp.com/interview", {
-          start_time: new Date(this.end_time).valueOf(),
-          end_time: new Date(this.start_time).valueOf(),
+          start_time: new Date(this.start_time).valueOf(),
+          end_time: new Date(this.end_time).valueOf(),
           candidates: this.selected,
           user_id: this.selected_user,
         })
