@@ -47,7 +47,8 @@ body {
 .side-bar {
   flex: 1;
   height: 100%;
-  background: rgb(219, 99, 0);
+  //   background: rgb(219, 99, 0);
+  background: linear-gradient(#f17d11, #f5af19);
   color: white;
   display: flex;
   flex-direction: column;

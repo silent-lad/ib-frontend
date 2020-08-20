@@ -1,6 +1,8 @@
 <template>
   <div class="create-interview-container container py-3">
-    <h3>Create Interview</h3>
+    <div class="heading">
+      <h2>Create Interview</h2>
+    </div>
 
     <div class="user-dropdown my-4">
       <p class="text-secondary font-weight-bold">Select Interviewer</p>
@@ -167,6 +169,14 @@ export default {
 </script>
 
 <style>
+.heading {
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  text-align: center;
+  background: rgba(255, 133, 19, 0.281);
+  box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.212);
+}
 .create-interview-container {
 }
 .candidates-row,

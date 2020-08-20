@@ -1,8 +1,13 @@
 <template>
   <div class="interviews-container container py-3">
-    <h3>Upcoming Interviews</h3>
+    <div class="heading mb-2">
+      <h2>Upcoming Interview</h2>
+    </div>
     <Loader v-if="isLoading"></Loader>
-    <div class="interviews-list row" v-else-if="editingInterview == null">
+    <div
+      class="interviews-list row py-3 mx-2"
+      v-else-if="editingInterview == null"
+    >
       <InterviewCard
         v-for="interview in formatted_interviews"
         :key="interview.id"
@@ -134,4 +139,12 @@ export default {
 </script>
 
 <style>
+.heading {
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  text-align: center;
+  background: rgba(255, 133, 19, 0.281);
+  box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.212);
+}
 </style>
