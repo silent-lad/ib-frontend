@@ -3,17 +3,17 @@
     <button class="edit-button" @click="$emit('on-edit')"></button>
     <button class="delete-button" @click="$emit('on-delete')"></button>
     <p>
-      {{ new Date(details.startTime).toLocaleString() }} -
-      {{ new Date(details.endTime).toLocaleString() }}
+      {{ new Date(details.start_time).toLocaleString() }} -
+      {{ new Date(details.end_time).toLocaleString() }}
     </p>
     <b>Interviewees</b>
     <ol>
-      <li v-for="candidate in details.selected" :key="candidate.id">
+      <li v-for="candidate in details.candidates" :key="candidate.candidate_id">
         {{ candidate.name }}
       </li>
     </ol>
     <b>Interviewer: </b>
-    <p>{{ details.interviewer }}</p>
+    <p>{{ details.user.name }}</p>
   </div>
 </template>
 
@@ -34,10 +34,10 @@ export default {
   position: absolute;
   top: 10px;
   right: 10px;
-  height: 35px;
-  width: 35px;
+  height: 45px;
+  width: 45px;
   background-color: red;
-  background-image: url(../assets/icons/edit.svg);
+  background-image: url(../assets/icons/delete.webp);
   background-size: cover;
   border: none;
   border-radius: 50%;

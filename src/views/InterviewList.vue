@@ -3,11 +3,11 @@
     <h3>Upcoming Interviews</h3>
     <div class="interviews-list row">
       <InterviewCard
-        v-for="(interview, i) in interviews"
+        v-for="interview in formatted_interviews"
         :key="interview.id"
         :details="interview"
-        @on-edit="editInterview(i)"
-        @on-delete="deleteInterview(i)"
+        @on-edit="editInterview(interview.interview_id)"
+        @on-delete="deleteInterview(interview.interview_id)"
       />
     </div>
   </div>
@@ -22,48 +22,11 @@ export default {
     InterviewCard,
   },
   data: () => ({
-    interviews: [
-      {
-        id: 0,
-        startTime: 1597906539,
-        endTime: 1597906580,
-        interviewer: "XYZ",
-        selected: [
-          {
-            id: 0,
-            name: "ABC",
-            college: "USICT",
-            email: "abcd@efg.com",
-          },
-          {
-            id: 1,
-            name: "DEF",
-            college: "IIT",
-            email: "def@efg.com",
-          },
-        ],
-      },
-      {
-        id: 1,
-        startTime: 1597907539,
-        endTime: 1597907580,
-        interviewer: "XYZ",
-        selected: [
-          {
-            id: 0,
-            name: "ABC",
-            college: "USICT",
-            email: "abcd@efg.com",
-          },
-          {
-            id: 1,
-            name: "DEF",
-            college: "IIT",
-            email: "def@efg.com",
-          },
-        ],
-      },
-    ],
+    interviews: [],
+    schedule: [],
+    candidates: [],
+    users: [],
+    formatted_interviews: [],
   }),
   methods: {
     editInterview(index) {
@@ -78,12 +41,41 @@ export default {
     },
   },
   created() {
-    axios
-      .get("https://ib-backend-server.herokuapp.com/candidates")
-      .then((candidates) => {
-        this.candidates = candidates.data;
-        this.remaining_candidates = this.candidates;
+    Promise.all([
+      axios.get("https://ib-backend-server.herokuapp.com/interview"),
+      axios.get("https://ib-backend-server.herokuapp.com/candidates"),
+      axios.get("https://ib-backend-server.herokuapp.com/users"),
+    ]).then((values) => {
+      var interview_response = values[0];
+      var candidates = values[1];
+      var users = values[2];
+
+      this.interviews = interview_response.data.interviews;
+      this.schedule = interview_response.data.schedule;
+
+      this.candidates = candidates.data;
+
+      this.users = users.data;
+      this.interviews.forEach((interview) => {
+        var user = this.users.find((el) => el.user_id == interview.user_id);
+        var schedules = this.schedule.filter(
+          (el) => el.interview_id == interview.interview_id
+        );
+        var candidates = [];
+        schedules.forEach((sched) => {
+          candidates.push(
+            this.candidates.find((el) => el.candidate_id == sched.candidate_id)
+          );
+        });
+        this.formatted_interviews.push({
+          interview_id: interview.interview_id,
+          start_time: interview.start_time,
+          end_time: interview.end_time,
+          user: user,
+          candidates: candidates,
+        });
       });
+    });
   },
 };
 </script>
