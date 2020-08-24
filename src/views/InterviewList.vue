@@ -98,57 +98,103 @@ export default {
     },
   },
   created() {
-    if (!localStorage.getItem("interviews")) {
-      this.isLoading = true;
-    } else {
-      this.isLoading = false;
-      this.formatted_interviews = JSON.parse(
-        localStorage.getItem("interviews")
-      );
-    }
-    Promise.all([
-      axios.get("https://ib-backend-server.herokuapp.com/interview"),
-      axios.get("https://ib-backend-server.herokuapp.com/candidates"),
-      axios.get("https://ib-backend-server.herokuapp.com/users"),
-    ]).then((values) => {
-      var interview_response = values[0];
-      var candidates = values[1];
-      var users = values[2];
+    axios
+      .get("http://localhost:8081/scheduled_interview")
+      .then((result) => {
+        console.log(result);
 
-      this.interviews = interview_response.data.interviews;
-      this.schedule = interview_response.data.schedule;
-
-      this.candidates = candidates.data;
-
-      this.users = users.data;
-
-      var cacheInterviews = [];
-      this.interviews.forEach((interview) => {
-        var user = this.users.find((el) => el.user_id == interview.user_id);
-        var schedules = this.schedule.filter(
-          (el) => el.interview_id == interview.interview_id
-        );
-        var candidates = [];
-        schedules.forEach((sched) => {
-          candidates.push(
-            this.candidates.find((el) => el.candidate_id == sched.candidate_id)
-          );
+        result.data.forEach((record) => {
+          var flag = false;
+          for (var i = 0; i < this.formatted_interviews.length; i++) {
+            console.log("debug");
+            var interview = this.formatted_interviews[i];
+            if (record.interview_id == interview.interview_id) {
+              interview.candidates.push({
+                name: record.name,
+                college: record.college,
+                email_id: record.email_id,
+              });
+              flag = true;
+              break;
+            }
+          }
+          if (!flag) {
+            var user = {
+              company: record.company,
+              name: record.user_name,
+              email: record.user_email,
+              user_id: record.user_id,
+            };
+            var candidate = {
+              name: record.name,
+              email: record.email_id,
+              candidate_id: record.c_id,
+            };
+            this.formatted_interviews.push({
+              candidates: [candidate],
+              start_time: record.start_time,
+              end_time: record.end_time,
+              interview_id: record.interview_id,
+              user: user,
+            });
+          }
         });
-        cacheInterviews.push({
-          interview_id: interview.interview_id,
-          start_time: interview.start_time,
-          end_time: interview.end_time,
-          user: user,
-          candidates: candidates,
-        });
+      })
+      .catch((err) => {
+        console.log(err);
       });
-      this.formatted_interviews = cacheInterviews;
-      localStorage.setItem(
-        "interviews",
-        JSON.stringify(this.formatted_interviews)
-      );
-      this.isLoading = false;
-    });
+
+    // if (!localStorage.getItem("interviews")) {
+    //   this.isLoading = true;
+    // } else {
+    //   this.isLoading = false;
+    //   this.formatted_interviews = JSON.parse(
+    //     localStorage.getItem("interviews")
+    //   );
+    // }
+    // Promise.all([
+    //   axios.get("https://ib-backend-server.herokuapp.com/interview"),
+    //   axios.get("https://ib-backend-server.herokuapp.com/candidates"),
+    //   axios.get("https://ib-backend-server.herokuapp.com/users"),
+    // ]).then((values) => {
+    //   var interview_response = values[0];
+    //   var candidates = values[1];
+    //   var users = values[2];
+
+    //   this.interviews = interview_response.data.interviews;
+    //   this.schedule = interview_response.data.schedule;
+
+    //   this.candidates = candidates.data;
+
+    //   this.users = users.data;
+
+    //   var cacheInterviews = [];
+    //   this.interviews.forEach((interview) => {
+    //     var user = this.users.find((el) => el.user_id == interview.user_id);
+    //     var schedules = this.schedule.filter(
+    //       (el) => el.interview_id == interview.interview_id
+    //     );
+    //     var candidates = [];
+    //     schedules.forEach((sched) => {
+    //       candidates.push(
+    //         this.candidates.find((el) => el.candidate_id == sched.candidate_id)
+    //       );
+    //     });
+    //     cacheInterviews.push({
+    //       interview_id: interview.interview_id,
+    //       start_time: interview.start_time,
+    //       end_time: interview.end_time,
+    //       user: user,
+    //       candidates: candidates,
+    //     });
+    //   });
+    //   this.formatted_interviews = cacheInterviews;
+    //   localStorage.setItem(
+    //     "interviews",
+    //     JSON.stringify(this.formatted_interviews)
+    //   );
+    //   this.isLoading = false;
+    // });
   },
 };
 </script>
